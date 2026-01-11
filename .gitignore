@@ -1,0 +1,49 @@
+# Environment and secrets
+.env
+*.env
+!.env.example
+!env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+.eggs/
+*.egg-info/
+*.egg
+
+# SQLite database (local dev only)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+uvicorn.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+test_endpoints.sh
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (for Phase 2b dockerization)
+dist/
+build/
