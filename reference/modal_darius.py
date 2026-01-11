@@ -43,7 +43,8 @@ SCALEDOWN_WINDOW_SECONDS = 60 * 10  # keep warm 10m after last request
 SESSION_META_DICT_NAME = f"{APP_NAME}-session-meta"
 session_meta = modal.Dict.from_name(SESSION_META_DICT_NAME, create_if_missing=True)
 
-
+# API key secret for authenticating middleware requests
+api_secret = modal.Secret.from_name("darius-api-key")
 
 def _parse_csv_strings(s: str) -> List[str]:
     if not s:
@@ -1022,14 +1023,34 @@ class DariusSession:
 @app.function(
     image=WEB_IMAGE,
     volumes={CACHE_ROOT: cache_vol},
+    secrets=[api_secret],
 )
 @modal.asgi_app()
 def web():
-    from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Query
+    from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Query, Request
+    from fastapi.responses import JSONResponse
     from pathlib import Path
     from starlette.concurrency import run_in_threadpool
 
     api = FastAPI()
+
+    # --- API Key Authentication Middleware ---
+    API_KEY = os.environ.get("DARIUS_API_KEY")
+
+    @api.middleware("http")
+    async def verify_api_key(request: Request, call_next):
+        # Allow health checks without auth
+        if request.url.path == "/health":
+            return await call_next(request)
+        
+        # Check for API key header
+        provided_key = request.headers.get("X-API-Key")
+        if not API_KEY or provided_key != API_KEY:
+            return JSONResponse(
+                status_code=401,
+                content={"error": "Invalid or missing API key"}
+            )
+        return await call_next(request)
 
     @api.get("/health")
     async def health():
