@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 1440  # 24 hours
 
     # Modal API (Phase 2)
-    modal_api_url: str | None = None
-    modal_api_key: str | None = None
+    modal_api_url: str = ""
+    darius_api_key: str = ""
 
     # Billing settings
     billing_poll_interval_seconds: float = 5.0

@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from app.billing import billing_loop
 from app.database import init_db
+from app.modal_client import get_modal_client
 from app.routes import auth, credits, jam
 
 
@@ -32,6 +33,12 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass
     print("Billing loop stopped")
+
+    # Close Modal client
+    print("Closing Modal client...")
+    client = get_modal_client()
+    await client.close()
+    print("Modal client closed")
 
 
 # Create FastAPI app
